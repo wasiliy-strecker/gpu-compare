@@ -1,0 +1,82 @@
+name: gpu-compare
+x-backend: &backend
+  build:
+    context: .
+    dockerfile: backend/Dockerfile
+  image: gpu-compare-backend:local
+  env_file:
+    - path: .env
+      required: false
+  volumes: [session-data:/run/gpu-compare:ro]
+  environment: &environment
+    SESSION_SECRET_FILE: /run/gpu-compare/session.key
+    DATABASE_URL: postgresql://gpu-compare:gpu-compare@db:5432/gpu-compare
+    AWS_ENDPOINT_URL: http://aws:5000
+    SQS_QUEUE_URL: http://aws:5000/123456789012/gpu-compare-jobs
+    AWS_ACCESS_KEY_ID: local
+    AWS_SECRET_ACCESS_KEY: local
+    AWS_EC2_METADATA_DISABLED: 'true'
+  depends_on:
+    db:
+      condition: service_healthy
+    aws:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  db:
+    image: postgres:17.7-alpine
+    environment:
+      POSTGRES_DB: gpu-compare
+      POSTGRES_USER: gpu-compare
+      POSTGRES_PASSWORD: gpu-compare
+    ports: ['127.0.0.1:55433:5432']
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U gpu-compare -d gpu-compare']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  aws:
+    image: motoserver/moto:5.1.22
+    ports: ['127.0.0.1:55001:5000']
+    healthcheck:
+      test: ['CMD', 'python', '-c', "import urllib.request; urllib.request.urlopen('http://localhost:5000/moto-api/')"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  setup:
+    <<: *backend
+    entrypoint: ['python', '-m', 'gpu_compare.bootstrap']
+    volumes: [session-data:/run/gpu-compare]
+    restart: 'no'
+  api:
+    <<: *backend
+    entrypoint: ['python', '-m', 'uvicorn', 'gpu_compare.api:app', '--host', '0.0.0.0', '--port', '8000']
+    ports: ['127.0.0.1:58100:8000']
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+  worker:
+    <<: *backend
+    entrypoint: ['python', '-m', 'gpu_compare.worker']
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+  gpu-watchdog:
+    <<: *backend
+    profiles: [gpu]
+    entrypoint: ['python', '-m', 'gpu_compare.benchmarks.lifecycle']
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+  web:
+    build:
+      context: frontend
+    ports: ['127.0.0.1:5180:80']
+    depends_on: [api]
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  session-data:

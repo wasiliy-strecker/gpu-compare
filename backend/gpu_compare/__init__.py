@@ -1,0 +1,1 @@
+"""GPU Compare application."""

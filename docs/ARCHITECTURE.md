@@ -1,0 +1,9 @@
+# Architecture
+
+GPU Compare owns its React frontend, FastAPI service, sessions, SQL migrations, Terraform state and release. Locally, Docker Compose runs PostgreSQL and Moto. In Stockholm, a dedicated CloudFront distribution serves the private web bucket and forwards the API to HTTP API Gateway and Lambda. The database is a separate Aurora PostgreSQL Express cluster accessed with Data API. Jobs use an SQS queue, worker and dead-letter queue. A scheduled Lambda reconciles Vast instances and private S3 control records, including when an API worker crashes.
+
+The API reserves EUR 1 per rental using Decimal and a database lock. The monthly allowance is EUR 10, with one active rental, a 30-minute deadline and a five-minute ready/idle timeout. Startup and shutdown count toward the allowance. An attempted create debits the reservation even if its outcome is unclear. The ledger provides a conservative admission limit; provider invoices establish actual charges. Ambiguous creates are reconciled by signed label. The slot is freed only after repeated inventory observations confirm termination.
+
+The runner initiates authenticated HTTPS callbacks. It receives a lease-scoped token and a short-lived read URL for the verified runner archive. Ollama listens on loopback. Wall-clock latency includes local inference through the end of streaming. Time to first token uses the first nonempty output chunk. Throughput uses Ollama token counts and evaluation duration. VRAM is sampled at 200 ms intervals. Missing measurements remain null. The report records model digest, quantization, GPU offloading and runtime versions.
+
+The public API accepts synthetic fixtures. Operator prompts are session-scoped and scrubbed at expiry or deletion. Only completed standard benchmark reports can enter the public comparison. S3 retains published standard reports and Aurora indexes results.
