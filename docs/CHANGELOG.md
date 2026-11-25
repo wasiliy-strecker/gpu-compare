@@ -15,3 +15,7 @@ During initial Stockholm provisioning, Aurora reported that the HTTP endpoint wa
 - Deployed the independent Stockholm stack, applied the database migrations and published the production web build. Terraform reported no outstanding changes after deployment. [Public demo](https://dkvxgcdy40zyv.cloudfront.net)
 - Verified the deployed JavaScript against the build and tested the empty comparison, provider status, disabled rental button and mobile layout in Chromium. The API returned an empty list of real reports. Paid rentals are disabled and the watchdog reported that the provider is unconfigured.
 - One initial session deletion returned HTTP 503. Three subsequent public session lifecycles completed. The API rejected a missing CSRF token, a foreign origin and reuse of a revoked cookie.
+
+## 2026-11-25 08:16 CET — Examples for the public demo
+
+Added a double-clickable German quick test and a plain-text copy of the five public benchmark prompts under `examples/`. Verified all three links in Chromium, checked the offer status and empty comparison against the live demo, and matched every prompt to the deployed protocol. The test session was deleted after verification.

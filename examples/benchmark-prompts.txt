@@ -1,0 +1,16 @@
+GPU Compare · Vorbereitete Prompts (gpu-compare-text-v1)
+
+explain
+Erkläre einer Schülerin in fünf Sätzen, wie ein Regenbogen entsteht.
+
+summarize
+Fasse in drei Stichpunkten zusammen: Die fiktive Stadt Lindenhafen eröffnet eine Bibliothek. Sie hat dienstags bis samstags geöffnet. Kinder können kostenlos Bücher ausleihen. Ein Leseklub trifft sich jeden Freitag.
+
+code
+Schreibe eine Python-Funktion, die eine Liste von ganzen Zahlen stabil dedupliziert. Erkläre kurz die Laufzeit und gib ein Beispiel.
+
+reason
+In einem fiktiven Garten stehen drei Reihen mit je sieben Bäumen. Vier weitere werden gepflanzt, zwei entfernt. Erkläre die Rechnung und nenne die verbleibende Anzahl.
+
+write
+Schreibe eine kurze freundliche Einladung zum fiktiven Roboter-Basteltag in Lindenhafen. Erfinde keine Kontaktangaben. Verwende höchstens 120 Wörter.
