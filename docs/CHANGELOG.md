@@ -19,3 +19,9 @@ During initial Stockholm provisioning, Aurora reported that the HTTP endpoint wa
 ## 2026-11-25 08:16 CET — Examples for the public demo
 
 Added a double-clickable German quick test and a plain-text copy of the five public benchmark prompts under `examples/`. Verified all three links in Chromium, checked the offer status and empty comparison against the live demo, and matched every prompt to the deployed protocol. The test session was deleted after verification.
+
+## 2026-11-25 18:30 CET — Live Vast.ai offers on AWS
+
+Connected the offer search and watchdog inventory to Vast.ai through AWS Secrets Manager. CloudFront served the verified production build. The watchdog recorded a healthy heartbeat with no GPU Compare instances. Rental admission remains disabled.
+
+After RDS confirmed that Aurora had paused, one click in a new Chromium session loaded 50 live offers. Four read requests received temporary HTTP 503 responses while the database resumed. The client honored the retry delay before creating one session. Selecting a GPU showed its VRAM and hourly price, and the rental button stayed disabled. Verified the mobile layout and session deletion. All four local browser tests, focused Python checks, Ruff, TypeScript and the production build passed.

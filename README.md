@@ -4,7 +4,7 @@ Vergleiche lokale Gemma-3-Modelle auf unterschiedlichen NVIDIA-GPUs. Wähle eine
 
 [GPU Compare auf AWS öffnen](https://dkvxgcdy40zyv.cloudfront.net) · [API-Dokumentation](https://dkvxgcdy40zyv.cloudfront.net/api/docs)
 
-Die öffentliche Demo läuft in AWS Stockholm. Mit **Angebote laden** kannst du den Verbindungsstatus von Vast.ai prüfen. GPU-Mieten sind gesperrt. Der Vergleich zeigt Ergebnisse, sobald die ersten echten Hardwareläufe abgeschlossen sind.
+Die öffentliche Demo läuft in AWS Stockholm. Mit **Angebote laden** siehst du aktuelle Vast.ai-Angebote mit GPU-Modell, VRAM und Stundenpreis. GPU-Mieten sind gesperrt. Der Vergleich zeigt Ergebnisse, sobald die ersten echten Hardwareläufe abgeschlossen sind.
 
 ## Lokal starten
 

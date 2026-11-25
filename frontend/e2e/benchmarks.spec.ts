@@ -98,10 +98,26 @@ test("GPU area exposes disabled real execution and an honest empty comparison", 
   await expect(
     page.getByText("Noch keine echten Benchmark-Ergebnisse vorhanden."),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Angebote laden" }).click();
-  await expect(page.getByRole("alert")).toContainText(
-    "Vast.ai ist noch nicht verbunden.",
-  );
+  const [response] = await Promise.all([
+    page.waitForResponse((r) => r.url().endsWith("/api/benchmarks/offers"), {
+      timeout: 60_000,
+    }),
+    page.getByRole("button", { name: "Angebote laden" }).click(),
+  ]);
+  expect(response.ok()).toBe(true);
+  const { available, offers } = await response.json();
+  if (available) {
+    await expect(page.getByRole("radio")).toHaveCount(offers.length);
+    await expect(
+      page.getByRole("button", { name: "Angebote laden" }),
+    ).toBeEnabled();
+    await expect(page.getByRole("alert")).toHaveCount(0);
+  } else {
+    expect(offers).toEqual([]);
+    await expect(page.getByRole("alert")).toContainText(
+      "Vast.ai ist noch nicht verbunden.",
+    );
+  }
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(
     page.getByRole("heading", { name: "GPU Compare" }),
@@ -112,6 +128,61 @@ test("GPU area exposes disabled real execution and an honest empty comparison", 
     ),
   ).toBeTruthy();
   expect(errors).toEqual([]);
+});
+
+test("one click loads offers after a database resume and creates one session", async ({
+  page,
+}) => {
+  let idle = false;
+  let wakeReads = 0;
+  let creates = 0;
+  let offers = 0;
+  await page.route("**/api/benchmarks/results", (route) => {
+    if (idle) wakeReads++;
+    if (wakeReads === 1)
+      return route.fulfill({
+        status: 503,
+        headers: { "Retry-After": "1" },
+        json: {},
+      });
+    return route.fulfill({ json: { results: [] } });
+  });
+  await page.route("**/api/demo-sessions/current", (route) =>
+    route.fulfill({ status: 401, json: {} }),
+  );
+  await page.route("**/api/demo-sessions", (route) => {
+    creates++;
+    return route.fulfill({
+      status: wakeReads >= 2 ? 200 : 503,
+      json: { csrf_token: "fixture" },
+    });
+  });
+  await page.route("**/api/benchmarks/offers", (route) => {
+    offers++;
+    return route.fulfill({ json: { available: true, offers: [] } });
+  });
+  await page.route("**/api/benchmarks/workspace", (route) =>
+    route.fulfill({
+      json: { leases: [], requests: [], operator: false, budget: null },
+    }),
+  );
+  await Promise.all([
+    page.waitForResponse((r) => r.url().endsWith("/benchmarks/results")),
+    page.goto("/"),
+  ]);
+  idle = true;
+  const button = page.getByRole("button", { name: "Angebote laden" });
+  const probe = page.waitForResponse(
+    (r) => r.url().endsWith("/benchmarks/results") && r.status() === 503,
+  );
+  await button.click();
+  await probe;
+  expect(creates).toBe(0);
+  await expect(button).toBeEnabled();
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  expect(wakeReads).toBe(2);
+  expect(creates).toBe(1);
+  expect(offers).toBe(1);
 });
 
 test("GPU controls send one idempotent rental and request cleanup", async ({
