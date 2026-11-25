@@ -271,6 +271,28 @@ def configure_sql_user(aws, cluster, credentials):
         )
 
 
+def verify_data_api(aws, cluster_arn, db_arn, *, timeout=180):
+    # RDS can report an enabled endpoint before Data API starts accepting SQL.
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            aws.run(
+                "rds-data",
+                "execute-statement",
+                {
+                    "resourceArn": cluster_arn,
+                    "secretArn": db_arn,
+                    "database": NAME,
+                    "sql": "SELECT 1",
+                },
+            )
+            return
+        except AwsError as exc:
+            if exc.code != "HttpEndpointNotEnabledException" or time.monotonic() >= deadline:
+                raise
+            time.sleep(5)
+
+
 def apply(aws, report):
     cluster = get_cluster(aws)
     if cluster is None:
@@ -317,17 +339,7 @@ def apply(aws, report):
         ),
     )
     configure_sql_user(aws, cluster, json.loads(db_value))
-    # A failing authentication check is surfaced, never repaired by password rotation.
-    aws.run(
-        "rds-data",
-        "execute-statement",
-        {
-            "resourceArn": cluster["DBClusterArn"],
-            "secretArn": db_arn,
-            "database": NAME,
-            "sql": "SELECT 1",
-        },
-    )
+    verify_data_api(aws, cluster["DBClusterArn"], db_arn)
     session_arn, session_value = ensure_secret(aws, "session", lambda: secrets.token_urlsafe(48))
     if len(session_value) < 32:
         raise ValueError("Existing session secret is too short.")

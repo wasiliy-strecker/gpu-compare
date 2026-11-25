@@ -7,6 +7,7 @@ from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import Mock
 
 import pytest
 from botocore.exceptions import ClientError
@@ -113,6 +114,27 @@ def test_preflight_never_mutates_or_reads_secret_values():
     assert report["engine_version"] == "17.9"
     assert all(op.startswith(("get-", "describe-")) for _, op, _ in aws.calls)
     assert all(service != "secretsmanager" for service, _, _ in aws.calls)
+
+
+def test_data_api_waits_only_for_endpoint_propagation(monkeypatch):
+    aws = Mock()
+    sleep = Mock()
+    monkeypatch.setattr(prepare.time, "sleep", sleep)
+    pending = prepare.AwsError("rds-data", "execute-statement", "HttpEndpointNotEnabledException")
+    aws.run.side_effect = [pending, {}]
+    prepare.verify_data_api(aws, "cluster", "secret")
+    first, second = aws.run.call_args_list
+    assert first == second and first.args[2]["sql"] == "SELECT 1"
+    sleep.assert_called_once()
+    for error, timeout in [
+        (pending, 0),
+        (prepare.AwsError("rds-data", "execute-statement", "AccessDeniedException"), 180),
+    ]:
+        aws.run.reset_mock()
+        aws.run.side_effect = error
+        with pytest.raises(prepare.AwsError):
+            prepare.verify_data_api(aws, "cluster", "secret", timeout=timeout)
+        aws.run.assert_called_once()
 
 
 @pytest.mark.parametrize(
