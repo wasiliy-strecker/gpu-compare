@@ -1,4 +1,4 @@
-# GPU Compare
+# GPU Compare — Benchmarking Local LLMs on Cloud GPUs
 
 Vergleiche lokale Gemma-3-Modelle auf unterschiedlichen NVIDIA-GPUs. Wähle eine Karte aus dem Vast.ai-Angebot und schicke dieselbe Prompt-Suite an Ollama. Der Messbericht zeigt Tokens pro Sekunde, Zeit bis zur ersten Ausgabe, Antwortdauer und VRAM-Spitze zusammen mit GPU, Modelldigest und Quantisierung.
 

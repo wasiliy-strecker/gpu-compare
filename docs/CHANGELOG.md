@@ -25,3 +25,7 @@ Added a double-clickable German quick test and a plain-text copy of the five pub
 Connected the offer search and watchdog inventory to Vast.ai through AWS Secrets Manager. CloudFront served the verified production build. The watchdog recorded a healthy heartbeat with no GPU Compare instances. Rental admission remains disabled.
 
 After RDS confirmed that Aurora had paused, one click in a new Chromium session loaded 50 live offers. Four read requests received temporary HTTP 503 responses while the database resumed. The client honored the retry delay before creating one session. Selecting a GPU showed its VRAM and hourly price, and the rental button stayed disabled. Verified the mobile layout and session deletion. All four local browser tests, focused Python checks, Ruff, TypeScript and the production build passed.
+
+## 2026-11-25 21:24 CET — GitHub project title
+
+Set the README heading to the English portfolio title. Verified that the existing public GitHub repository uses the same source history as the local checkout.
