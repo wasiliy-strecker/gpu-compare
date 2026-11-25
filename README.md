@@ -2,6 +2,10 @@
 
 Vergleiche lokale Gemma-3-Modelle auf unterschiedlichen NVIDIA-GPUs. Wähle eine Karte aus dem Vast.ai-Angebot und schicke dieselbe Prompt-Suite an Ollama. Der Messbericht zeigt Tokens pro Sekunde, Zeit bis zur ersten Ausgabe, Antwortdauer und VRAM-Spitze zusammen mit GPU, Modelldigest und Quantisierung.
 
+[GPU Compare auf AWS öffnen](https://dkvxgcdy40zyv.cloudfront.net) · [API-Dokumentation](https://dkvxgcdy40zyv.cloudfront.net/api/docs)
+
+Die öffentliche Demo läuft in AWS Stockholm. Mit **Angebote laden** kannst du den Verbindungsstatus von Vast.ai prüfen. GPU-Mieten sind gesperrt. Der Vergleich zeigt Ergebnisse, sobald die ersten echten Hardwareläufe abgeschlossen sind.
+
 ## Lokal starten
 
 Mit Docker und Docker Compose ab 2.24:
@@ -18,7 +22,7 @@ Die lokale Demo startet ohne Schlüssel. Mit **Angebote laden** lässt sich der 
 
 Der Standardlauf schließt einen Warm-up aus und misst drei Runden mit fünf festen Prompts. Für einen GPU-Vergleich zwei Karten nacheinander mit demselben Modell, derselben Quantisierung und demselben Protokoll testen. Modell-Download und Ladezeit sind separat ausgewiesen. Öffentliche Sitzungen verwenden synthetische Prompts. Eigene Texte erfordern eine Operator-Anmeldung.
 
-Die AWS-Bereitstellung ist für Stockholm vorbereitet. Ein öffentlicher AWS-Link und Messungen auf echter Vast-Hardware stehen aus. [Architektur und Messprotokoll](docs/ARCHITECTURE.md) · [AWS-Betrieb und Hardwaretest](docs/AWS.md)
+[Architektur und Messprotokoll](docs/ARCHITECTURE.md) · [AWS-Betrieb und Hardwaretest](docs/AWS.md)
 
 ## Entwicklung
 
